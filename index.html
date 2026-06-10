@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Central de Estudos TJMS · Analista Judiciário</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',system-ui,-apple-system,sans-serif; background:#F1F5F9;}
+        select,input,button{font-family:inherit}
+        /* pequeno loader */
+        .loader-wrapper{display:flex;align-items:center;justify-content:center;height:100vh;font-size:14px;color:#334155;}
+    </style>
+    <!-- React e ReactDOM -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="root"><div class="loader-wrapper">Carregando ambiente de estudos...</div></div>
+
+<script>
+
+const SUPABASE_URL = "https://jwyrvphcayrznycqjgxg.supabase.co";  
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3eXJ2cGhjYXlyem55Y3FqZ3hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTE3MTksImV4cCI6MjA5NjY4NzcxOX0.UNS7bszVK5NimJ9CPf5FE2ZFkAc5JO-Tyb0GAXzw-L4"; 
+
+// Inicializa cliente Supabase
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ======================= DADOS DO EDITAL (inalterados) =======================
+const DISCS = [
+  {id:1,name:"Língua Portuguesa",priority:"alta",weight:15,color:"#185FA5",topics:[
+    {id:101,name:"Interpretação e compreensão de texto"},{id:102,name:"Organização estrutural e coesão textual"},
+    {id:103,name:"Modos de organização discursiva"},{id:104,name:"Morfologia: classes de palavras"},
+    {id:105,name:"Sintaxe: termos e orações"},{id:106,name:"Concordância verbal e nominal"},
+    {id:107,name:"Semântica: sinonímia, polissemia, ambiguidade"},{id:108,name:"Ortografia, acentuação e crase"},
+    {id:109,name:"Pontuação e sinais gráficos"}]},
+  {id:2,name:"Direito Constitucional",priority:"muito_alta",weight:9,color:"#534AB7",topics:[
+    {id:201,name:"Conceito, classificação e supremacia da CF"},{id:202,name:"Poder Constituinte"},
+    {id:203,name:"Princípios fundamentais (Arts. 1º–4º)"},{id:204,name:"Direitos e garantias fundamentais (Art. 5º)"},
+    {id:205,name:"Direitos sociais e políticos"},{id:206,name:"Organização do Estado e competências"},
+    {id:207,name:"Poder Judiciário e CNJ"},{id:208,name:"Ministério Público e Defensoria Pública"},
+    {id:209,name:"Controle de constitucionalidade"},{id:210,name:"Administração Pública na CF"}]},
+  {id:3,name:"Direito Processual Civil",priority:"muito_alta",weight:6,color:"#0F6E56",topics:[
+    {id:301,name:"Normas fundamentais e princípios do CPC"},{id:302,name:"Jurisdição, ação e competência"},
+    {id:303,name:"Partes, litisconsórcio e intervenção de terceiros"},{id:304,name:"Tutela provisória de urgência e evidência"},
+    {id:305,name:"Petição inicial, contestação e revelia"},{id:306,name:"Provas e audiência de instrução"},
+    {id:307,name:"Sentença, coisa julgada e recursos"},{id:308,name:"Execução e cumprimento de sentença"},
+    {id:309,name:"Procedimentos especiais e ação monitória"}]},
+  {id:4,name:"Direito Penal",priority:"muito_alta",weight:6,color:"#A32D2D",topics:[
+    {id:401,name:"Princípios e aplicação da lei penal"},{id:402,name:"Fato típico, ilicitude e culpabilidade"},
+    {id:403,name:"Tentativa, concurso de pessoas e de crimes"},{id:404,name:"Penas e prescrição"},
+    {id:405,name:"Crimes contra a pessoa e patrimônio"},{id:406,name:"Crimes contra a Adm. Pública e sexuais"},
+    {id:407,name:"Legislação penal especial (Maria da Penha, Drogas, etc.)"}]},
+  {id:5,name:"Direito Administrativo",priority:"alta",weight:5,color:"#854F0B",topics:[
+    {id:501,name:"Princípios e organização administrativa"},{id:502,name:"Ato e processo administrativo"},
+    {id:503,name:"Licitação e contratos (Lei 14.133/2021)"},{id:504,name:"Improbidade e Anticorrupção"},
+    {id:505,name:"PPP e responsabilidade civil do Estado"}]},
+  {id:6,name:"Direito Processual Penal",priority:"alta",weight:4,color:"#993556",topics:[
+    {id:601,name:"Princípios e persecução penal"},{id:602,name:"Jurisdição, competência, conexão e continência"},
+    {id:603,name:"Provas e medidas cautelares (prisões)"},{id:604,name:"Procedimentos, recursos e revisão criminal"}]},
+  {id:7,name:"Noções de Legislação TJMS",priority:"alta",weight:5,color:"#3B6D11",topics:[
+    {id:701,name:"Estatuto dos Servidores (Lei 3.310/2006)"},{id:702,name:"Plano de Cargos (Lei 3.687/2009)"},
+    {id:703,name:"Código de Ética (Res. 252/2021)"},{id:704,name:"Gestão Antissuborno (Portarias TJMS)"},
+    {id:705,name:"Regimento Interno e Manual de Atribuições"}]},
+  {id:8,name:"Direito Civil",priority:"media",weight:3,color:"#2563EB",topics:[
+    {id:801,name:"LINDB, pessoas, bens e fatos jurídicos"},{id:802,name:"Obrigações e responsabilidade civil"},
+    {id:803,name:"Família, filiação e multiparentalidade"},{id:804,name:"Sucessões e inventário"}]},
+  {id:9,name:"Dir. Adm. Estadual (TJMS)",priority:"media",weight:3,color:"#0891B2",topics:[
+    {id:901,name:"MSPREV – Previdência (Lei 3.150/2005)"},{id:902,name:"Responsabilidade e processo disciplinar"},
+    {id:903,name:"Controle externo e TCE-MS"}]},
+  {id:10,name:"Direito do Consumidor",priority:"media",weight:1,color:"#7C3AED",topics:[
+    {id:1001,name:"CDC: relação de consumo e responsabilidade"},{id:1002,name:"Práticas abusivas e superendividamento"}]},
+  {id:11,name:"Leg. Civil e Processual Especial",priority:"baixa",weight:1,color:"#0F766E",topics:[
+    {id:1101,name:"Locação (Lei 8.245/91) e fiança"},{id:1102,name:"LGPD e Lei de Liberdade Econômica"}]},
+  {id:12,name:"Leg. Penal e Proc. Penal Especial",priority:"media",weight:2,color:"#B45309",topics:[
+    {id:1201,name:"Proteção à testemunha (Lei 9.807/99)"},{id:1202,name:"Execução Penal (Lei 7.210/84)"}]},
+  {id:13,name:"Direito Econômico e Previdenciário",priority:"baixa",weight:2,color:"#6B7280",topics:[
+    {id:1301,name:"Lei de Liberdade Econômica (13.874/2019)"},{id:1302,name:"Previdência Social MSPREV"}]},
+];
+
+const PC = {
+  muito_alta:{label:"Muito alta",color:"#A32D2D",bg:"#FEF2F2",dot:"#EF4444"},
+  alta:{label:"Alta",color:"#854F0B",bg:"#FFFBEB",dot:"#F59E0B"},
+  media:{label:"Média",color:"#0F6E56",bg:"#ECFDF5",dot:"#10B981"},
+  baixa:{label:"Baixa",color:"#185FA5",bg:"#EFF6FF",dot:"#3B82F6"}
+};
+const SC = {nao_iniciado:{label:"Não iniciado",color:"#9CA3AF",bg:"#F9FAFB"}, em_andamento:{label:"Em andamento",color:"#F59E0B",bg:"#FFFBEB"}, concluido:{label:"Concluído",color:"#10B981",bg:"#ECFDF5"}};
+
+function initTopic() { return { status:"nao_iniciado", questoes_respondidas:0, questoes_acertos:0, ultima_revisao:null, proxima_revisao:null, revisoes:[], nivel_conhecimento:0 }; }
+function getEmptyProgressMap() { const map={}; DISCS.forEach(d=>d.topics.forEach(t=>{ map[t.id]=initTopic(); })); return map; }
+function todayStr(){ return new Date().toISOString().split("T")[0]; }
+function addDays(date,n){ const d=new Date(date); d.setDate(d.getDate()+n); return d.toISOString().split("T")[0]; }
+function fmtDate(d){ if(!d)return"—"; const dt=new Date(d+"T12:00:00"); return `${dt.getDate().toString().padStart(2,"0")}/${(dt.getMonth()+1).toString().padStart(2,"0")}/${dt.getFullYear()}`; }
+function accColor(p){ return p>=70?"#10B981":p>=50?"#F59E0B":"#EF4444"; }
+
+// ======================= FUNÇÕES SUPABASE =======================
+async function fetchUserProgress(userId) {
+    const { data, error } = await supabaseClient.from('user_progress').select('*').eq('user_id', userId);
+    if (error) throw error;
+    const map = getEmptyProgressMap();
+    if (data) {
+        data.forEach(row => {
+            map[row.topic_id] = {
+                status: row.status,
+                questoes_respondidas: row.questoes_respondidas || 0,
+                questoes_acertos: row.questoes_acertos || 0,
+                ultima_revisao: row.ultima_revisao,
+                proxima_revisao: row.proxima_revisao,
+                revisoes: row.revisoes || [],
+                nivel_conhecimento: row.nivel_conhecimento || 0
+            };
+        });
+    }
+    return map;
+}
+
+async function fetchWeekLogs(userId) {
+    const { data, error } = await supabaseClient.from('week_logs').select('log_date, hours').eq('user_id', userId);
+    if (error) throw error;
+    const logs = {};
+    if (data) data.forEach(l => { logs[l.log_date] = l.hours; });
+    return logs;
+}
+
+async function upsertTopicProgress(userId, topicId, data) {
+    const { error } = await supabaseClient.from('user_progress').upsert({
+        user_id: userId,
+        topic_id: topicId,
+        status: data.status,
+        questoes_respondidas: data.questoes_respondidas,
+        questoes_acertos: data.questoes_acertos,
+        ultima_revisao: data.ultima_revisao,
+        proxima_revisao: data.proxima_revisao,
+        revisoes: data.revisoes,
+        nivel_conhecimento: data.nivel_conhecimento
+    }, { onConflict: 'user_id, topic_id' });
+    if (error) throw error;
+}
+
+async function upsertWeekHour(userId, date, hours) {
+    const { error } = await supabaseClient.from('week_logs').upsert({
+        user_id: userId,
+        log_date: date,
+        hours: hours
+    }, { onConflict: 'user_id, log_date' });
+    if (error) throw error;
+}
+
+// ======================= COMPONENTE PRINCIPAL COM SUPABASE =======================
+const { useState, useEffect, useCallback, useRef } = React;
+
+function App() {
+    const [td, setTd] = useState(null);         // null = loading
+    const [weekLog, setWeekLog] = useState(null);
+    const [tab, setTab] = useState("dashboard");
+    const [openDisc, setOpenDisc] = useState(null);
+    const [modal, setModal] = useState(null);
+    const [hInput, setHInput] = useState("");
+    const [toast, setToast] = useState(null);
+    const [userId, setUserId] = useState(null);
+    const [syncStatus, setSyncStatus] = useState("sincronizando...");
+
+    // Inicialização: login anônimo + carregar dados
+    useEffect(() => {
+        async function initUserAndData() {
+            try {
+                // 1. Autenticação anônima (garante user_id persistente via localStorage do Supabase)
+                let { data: { user }, error } = await supabaseClient.auth.getUser();
+                if (error || !user) {
+                    const { data, error: signError } = await supabaseClient.auth.signInAnonymously();
+                    if (signError) throw signError;
+                    user = data.user;
+                }
+                const uid = user.id;
+                setUserId(uid);
+                
+                // 2. Carregar progresso e semana em paralelo
+                const [progressMap, weekMap] = await Promise.all([
+                    fetchUserProgress(uid),
+                    fetchWeekLogs(uid)
+                ]);
+                setTd(progressMap);
+                setWeekLog(weekMap);
+                setSyncStatus("pronto");
+                showToast("✅ Dados sincronizados com a nuvem");
+            } catch (err) {
+                console.error(err);
+                // Fallback para localStorage se algo falhar
+                const localTd = loadStoreFallback("tjms_td_v3", getEmptyProgressMap());
+                const localWk = loadStoreFallback("tjms_wl_v3", {});
+                setTd(localTd);
+                setWeekLog(localWk);
+                setSyncStatus("offline (fallback local)");
+                showToast("⚠️ Modo offline - dados salvos localmente");
+            }
+        }
+        initUserAndData();
+    }, []);
+
+    function loadStoreFallback(key, fallback) {
+        try { const s = localStorage.getItem(key); if(s) return JSON.parse(s); } catch(e) {}
+        return fallback;
+    }
+    function saveStoreFallback(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+    }
+
+    const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2600); };
+
+    // Função genérica para atualizar tópico (local + Supabase + fallback)
+    const updateTopic = useCallback(async (topicId, updates) => {
+        if (!td) return;
+        const newTd = { ...td, [topicId]: { ...td[topicId], ...updates } };
+        setTd(newTd);
+        // Salva no localStorage como cache
+        saveStoreFallback("tjms_td_v3", newTd);
+        if (userId) {
+            try {
+                await upsertTopicProgress(userId, topicId, newTd[topicId]);
+            } catch (err) {
+                console.warn("Erro ao salvar no Supabase, mantido local", err);
+                showToast("⚠️ Alteração salva apenas localmente (falha de rede)");
+            }
+        }
+    }, [td, userId]);
+
+    const setStatus = (tid, status) => {
+        const upd = { status };
+        if(status === "concluido") {
+            const niv = td[tid]?.nivel_conhecimento || 0;
+            const days = niv >= 3 ? 30 : niv >= 2 ? 15 : 7;
+            const today = todayStr();
+            upd.ultima_revisao = today;
+            upd.proxima_revisao = addDays(today, days);
+        }
+        updateTopic(tid, upd);
+        showToast("Status atualizado ✓");
+    };
+
+    const markRev = (tid) => {
+        const today = todayStr();
+        const t = td[tid];
+        const niv = t?.nivel_conhecimento || 0;
+        const days = niv >= 3 ? 30 : niv >= 2 ? 15 : 7;
+        const revs = [...(t?.revisoes || []), today];
+        updateTopic(tid, { ultima_revisao: today, proxima_revisao: addDays(today, days), revisoes: revs });
+        showToast("📚 Revisão registrada!");
+    };
+
+    const saveModal = async (tid, form) => {
+        const niv = form.questoes_respondidas >= 30 ? (form.questoes_acertos/form.questoes_respondidas >= 0.7 ? 3 : form.questoes_acertos/form.questoes_respondidas >= 0.5 ? 2 : 1) : 0;
+        const today = todayStr();
+        let prox = td[tid]?.proxima_revisao;
+        if(form.status === "concluido" && !prox) { prox = addDays(today, niv>=3?30:niv>=2?15:7); }
+        await updateTopic(tid, { ...form, nivel_conhecimento: niv, proxima_revisao: prox });
+        setModal(null);
+        showToast("📊 Dados salvos!");
+    };
+
+    const logHours = async (date, hours) => {
+        const val = parseFloat(hours) || 0;
+        const newLog = { ...weekLog, [date]: val };
+        setWeekLog(newLog);
+        saveStoreFallback("tjms_wl_v3", newLog);
+        if(userId) {
+            try {
+                await upsertWeekHour(userId, date, val);
+            } catch(err) { console.warn("erro horas", err); }
+        }
+        showToast(`⏱️ ${val}h registradas em ${date}`);
+    };
+
+    // Se ainda carregando dados
+    if (!td || !weekLog) {
+        return React.createElement("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontFamily: "sans-serif", color: "#475569" } },
+            React.createElement("div", null, "📡 Conectando ao Supabase e carregando seus estudos...", React.createElement("br"), React.createElement("small", null, syncStatus))
+        );
+    }
+
+    // ======================= RENDER (mesma UI original, mas com dados do Supabase) =======================
+    const today = todayStr();
+    const allT = DISCS.flatMap(d => d.topics.map(t => ({ ...t, discId: d.id, discName: d.name, discColor: d.color, discPrio: d.priority })));
+    const totalT = allT.length;
+    const conc = allT.filter(t => td[t.id]?.status === "concluido").length;
+    const emAnd = allT.filter(t => td[t.id]?.status === "em_andamento").length;
+    const naoIn = allT.filter(t => td[t.id]?.status === "nao_iniciado").length;
+    const pctG = totalT ? Math.round((conc/totalT)*100) : 0;
+    let totQ = 0, totAc = 0;
+    allT.forEach(t => { const x = td[t.id]; if(x){ totQ += x.questoes_respondidas||0; totAc += x.questoes_acertos||0; } });
+    const totErr = totQ - totAc;
+    const pctAc = totQ ? Math.round((totAc/totQ)*100) : 0;
+    const pctErr = totQ ? Math.round((totErr/totQ)*100) : 0;
+    const revVenc = allT.filter(t => { const x = td[t.id]; return x?.proxima_revisao && x.proxima_revisao <= today && x.status === "concluido"; });
+    const revProx = allT.filter(t => { const x = td[t.id]; if(!x?.proxima_revisao || x.status !== "concluido") return false; const diff = (new Date(x.proxima_revisao) - new Date(today))/86400000; return diff>0 && diff<=7; });
+    const ds = DISCS.map(d => {
+        const tops = d.topics;
+        const c = tops.filter(t => td[t.id]?.status === "concluido").length;
+        const pct = tops.length ? Math.round((c/tops.length)*100) : 0;
+        let dQ=0,dA=0; tops.forEach(t=>{ const x=td[t.id]; if(x){ dQ+=x.questoes_respondidas||0; dA+=x.questoes_acertos||0; } });
+        const dpA = dQ ? Math.round((dA/dQ)*100) : null;
+        return { ...d, conc:c, total:tops.length, pct, questoes:dQ, acertos:dA, pctAcertos:dpA };
+    });
+    const critDisc = ds.filter(d => (d.priority==="muito_alta"||d.priority==="alta") && d.pct<50);
+    const critTops = allT.filter(t => { const x=td[t.id]; if(!x || x.questoes_respondidas<10) return false; return (x.questoes_acertos/x.questoes_respondidas)<0.5; });
+    const getWkDays = () => { const days=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); days.push(d.toISOString().split("T")[0]); } return days; };
+    const wkDays = getWkDays();
+    const wkH = wkDays.map(d => ({ date:d, hours:weekLog[d]||0 }));
+    const totWH = wkH.reduce((s,d) => s+d.hours, 0);
+    const DAYS = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+    const tabs = [{id:"dashboard",label:"Painel"},{id:"edital",label:"Edital"},{id:"revisoes",label:"Revisões"},{id:"questoes",label:"Questões"},{id:"graficos",label:"Gráficos"}];
+    const s = {
+        wrap:{fontFamily:"'Inter',system-ui,sans-serif",minHeight:"100vh",background:"#F1F5F9",color:"#111827"},
+        hdr:{background:"#1E2432",color:"white",padding:"0 20px"}, hdrIn:{maxWidth:1060,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:52},
+        logo:{display:"flex",alignItems:"center",gap:10}, logoBox:{width:30,height:30,background:"#534AB7",borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:700,color:"white"},
+        tabs:{maxWidth:1060,margin:"0 auto",display:"flex",gap:2}, main:{maxWidth:1060,margin:"0 auto",padding:"20px"},
+        card:{background:"white",borderRadius:12,border:"0.5px solid #E2E8F0",padding:16}, row:{display:"flex",gap:12},
+        grid2:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}, grid3:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12},
+        grid4:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10},
+    };
+    const kpi = (label,value,sub,color) => React.createElement("div",{style:{...s.card,padding:"14px 16px"}}, React.createElement("div",{style:{fontSize:11,color:"#6B7280",marginBottom:3}},label), React.createElement("div",{style:{fontSize:22,fontWeight:700,color,lineHeight:1}},value), React.createElement("div",{style:{fontSize:10,color:"#9CA3AF",marginTop:3}},sub));
+    const pbar = (pct,color,h=5) => React.createElement("div",{style:{height:h,background:"#F1F5F9",borderRadius:h,overflow:"hidden"}}, React.createElement("div",{style:{height:"100%",width:`${pct}%`,background:color,borderRadius:h,transition:"width .3s"}}));
+
+    return React.createElement("div",{style:s.wrap},
+        React.createElement("div",{style:s.hdr},
+            React.createElement("div",{style:s.hdrIn},
+                React.createElement("div",{style:s.logo}, React.createElement("div",{style:s.logoBox},"J"), React.createElement("div",null, React.createElement("div",{style:{fontSize:13,fontWeight:600,letterSpacing:"-0.02em"}},"Central de Estudos"), React.createElement("div",{style:{fontSize:10,color:"#94A3B8"}},"TJMS · Analista Judiciário · FGV"))),
+                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12}},
+                    React.createElement("div",{style:{textAlign:"right"}}, React.createElement("div",{style:{fontSize:10,color:"#94A3B8"}},"Progresso geral"), React.createElement("div",{style:{fontSize:20,fontWeight:700,color:pctG>=70?"#34D399":pctG>=40?"#FBBF24":"#94A3B8"}},pctG+"%")),
+                    revVenc.length>0 && React.createElement("div",{style:{background:"#EF4444",color:"white",borderRadius:20,padding:"3px 10px",fontSize:11,fontWeight:600}}, revVenc.length+" revisão"+(revVenc.length>1?"ões":"")+" pendente"+(revVenc.length>1?"s":""))
+                )
+            ),
+            React.createElement("div",{style:s.tabs}, tabs.map(t=>React.createElement("button",{key:t.id,onClick:()=>setTab(t.id),style:{background:"none",border:"none",color:tab===t.id?"white":"#94A3B8",padding:"9px 14px",fontSize:12,fontWeight:tab===t.id?600:400,cursor:"pointer",borderBottom:tab===t.id?"2px solid #534AB7":"2px solid transparent"}},t.label)))
+        ),
+        React.createElement("div",{style:s.main},
+            tab==="dashboard" && React.createElement("div",null,
+                React.createElement("div",{style:{...s.grid4,marginBottom:14}}, kpi("Tópicos concluídos",conc,`de ${totalT} tópicos`,"#10B981"), kpi("Em andamento",emAnd,"tópicos","#F59E0B"), kpi("Não iniciados",naoIn,"tópicos","#9CA3AF"), kpi("Questões resolvidas",totQ,`meta: ${totalT*30}`,"#534AB7"), kpi("Taxa de acertos",pctAc+"%",totAc+" acertos",accColor(pctAc)), kpi("Taxa de erros",pctErr+"%",totErr+" erros",pctErr>40?"#EF4444":"#9CA3AF"), kpi("Revisões vencidas",revVenc.length,"pendentes hoje",revVenc.length>0?"#EF4444":"#10B981"), kpi("Rev. próximas 7 dias",revProx.length,"em breve","#F59E0B")),
+                React.createElement("div",{style:{...s.grid2,marginBottom:14}},
+                    React.createElement("div",{style:s.card}, React.createElement("div",{style:{fontSize:13,fontWeight:600,marginBottom:14}},"Progresso por disciplina"), ds.slice(0,8).map(d=>React.createElement("div",{key:d.id,style:{marginBottom:9}}, React.createElement("div",{style:{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:2}}, React.createElement("span",{style:{color:"#374151",fontWeight:500}},d.name), React.createElement("span",{style:{color:"#6B7280"}},d.pct+"% ("+d.conc+"/"+d.total+")")), pbar(d.pct,d.color,5)))),
+                    React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:12}},
+                        React.createElement("div",{style:{...s.card,background:"#FEF2F2",border:"0.5px solid #FCA5A5"}}, React.createElement("div",{style:{fontSize:12,fontWeight:600,color:"#991B1B",marginBottom:8}},"⚠ Disciplinas críticas (alta prio < 50%)"), critDisc.length===0 ? React.createElement("div",{style:{fontSize:12,color:"#6B7280"}},"Nenhuma no momento") : critDisc.map(d=>React.createElement("div",{key:d.id,style:{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}, React.createElement("span",{style:{color:"#7F1D1D"}},d.name), React.createElement("span",{style:{fontWeight:600,color:"#EF4444"}},d.pct+"%")))),
+                        React.createElement("div",{style:{...s.card,background:revVenc.length>0?"#FFF7ED":"white",border:"0.5px solid "+(revVenc.length>0?"#FED7AA":"#E2E8F0"),flex:1}}, React.createElement("div",{style:{fontSize:12,fontWeight:600,color:revVenc.length>0?"#9A3412":"#374151",marginBottom:8}}, revVenc.length>0?"🔴 Revisões vencidas":"✅ Revisões em dia"), revVenc.length===0 ? React.createElement("div",{style:{fontSize:12,color:"#6B7280"}},"Tudo em dia!") : revVenc.slice(0,4).map(t=>React.createElement("div",{key:t.id,style:{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,marginBottom:5}}, React.createElement("span",{style:{color:"#7C2D12",flex:1,paddingRight:8}},t.name), React.createElement("button",{onClick:()=>markRev(t.id),style:{background:"#10B981",color:"white",border:"none",borderRadius:5,padding:"3px 8px",fontSize:10,cursor:"pointer",fontWeight:600,flexShrink:0}},"Revisar"))))
+                    )
+                ),
+                React.createElement("div",{style:s.card},
+                    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}, React.createElement("div",{style:{fontSize:13,fontWeight:600}},"Horas estudadas esta semana"), React.createElement("div",{style:{fontSize:11,color:"#6B7280"}},totWH.toFixed(1)+"h / 24h semanais")),
+                    React.createElement("div",{style:{display:"flex",gap:6,alignItems:"flex-end",height:70,marginBottom:10}}, wkH.map(({date,hours})=>{ const pct=Math.min(hours/6,1), isToday=date===today; return React.createElement("div",{key:date,style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}, React.createElement("div",{style:{fontSize:9,color:"#9CA3AF",height:12}},hours>0?hours+"h":""), React.createElement("div",{style:{width:"100%",height:56,background:"#F1F5F9",borderRadius:3,display:"flex",alignItems:"flex-end",overflow:"hidden"}}, React.createElement("div",{style:{width:"100%",height:`${pct*100}%`,background:isToday?"#534AB7":"#A78BFA",borderRadius:3,minHeight:hours>0?3:0}})), React.createElement("div",{style:{fontSize:9,color:isToday?"#534AB7":"#9CA3AF",fontWeight:isToday?700:400}}, DAYS[new Date(date+"T12:00:00").getDay()])); })),
+                    React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}}, React.createElement("input",{type:"number",min:"0",max:"12",step:"0.5",value:hInput,onChange:e=>setHInput(e.target.value),placeholder:"Horas hoje (ex: 4)",style:{border:"0.5px solid #D1D5DB",borderRadius:6,padding:"6px 10px",fontSize:12,width:150,outline:"none"}}), React.createElement("button",{onClick:()=>{logHours(today,hInput); setHInput("");},style:{background:"#534AB7",color:"white",border:"none",borderRadius:6,padding:"6px 14px",fontSize:12,cursor:"pointer",fontWeight:600}},"Registrar"))
+                )
+            ),
+            tab==="edital" && React.createElement("div",null,
+                React.createElement("div",{style:{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}, Object.entries(PC).map(([k,v])=>{ const cnt=DISCS.filter(d=>d.priority===k).length; return React.createElement("div",{key:k,style:{background:v.bg,border:`0.5px solid ${v.dot}`,borderRadius:8,padding:"4px 12px",fontSize:11,color:v.color,fontWeight:500}},v.label+": "+cnt+" disciplina"+(cnt!==1?"s":"")); })),
+                DISCS.map(disc=>{ const dstat=ds.find(d=>d.id===disc.id); const pc=PC[disc.priority]; const isOpen=openDisc===disc.id; return React.createElement("div",{key:disc.id,style:{...s.card,marginBottom:8,padding:0,overflow:"hidden"}}, React.createElement("div",{onClick:()=>setOpenDisc(isOpen?null:disc.id),style:{display:"flex",alignItems:"center",padding:"12px 16px",cursor:"pointer",gap:10}}, React.createElement("div",{style:{width:10,height:10,borderRadius:"50%",background:disc.color,flexShrink:0}}), React.createElement("div",{style:{flex:1}}, React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,marginBottom:4}}, React.createElement("span",{style:{fontSize:13,fontWeight:600}},disc.name), React.createElement("span",{style:{background:pc.bg,color:pc.color,fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:8}},pc.label), React.createElement("span",{style:{background:"#F1F5F9",color:"#6B7280",fontSize:10,padding:"1px 6px",borderRadius:8}},disc.weight+"q na prova")), pbar(dstat?.pct||0,disc.color,4)), React.createElement("div",{style:{textAlign:"right",minWidth:72}}, React.createElement("div",{style:{fontSize:15,fontWeight:700,color:disc.color}},dstat?.pct||0,"%"), React.createElement("div",{style:{fontSize:10,color:"#9CA3AF"}},dstat?.conc+"/"+dstat?.total)), React.createElement("div",{style:{fontSize:16,color:"#9CA3AF",transform:isOpen?"rotate(180deg)":"none",transition:"transform .2s"}},"▾")), isOpen && React.createElement("div",{style:{borderTop:"0.5px solid #F1F5F9",padding:"8px 16px"}}, disc.topics.map(topic=>{ const x=td[topic.id]||initTopic(); const sc=SC[x.status]; const pA=x.questoes_respondidas?Math.round((x.questoes_acertos/x.questoes_respondidas)*100):null; const metaOk=x.questoes_respondidas>=30; return React.createElement("div",{key:topic.id,style:{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:"0.5px solid #F8FAFC"}}, React.createElement("select",{value:x.status,onChange:e=>setStatus(topic.id,e.target.value),style:{border:`0.5px solid ${sc.color}`,borderRadius:5,padding:"2px 5px",fontSize:10,color:sc.color,background:sc.bg,cursor:"pointer",outline:"none"}}, Object.entries(SC).map(([k,v])=>React.createElement("option",{key:k,value:k},v.label))), React.createElement("span",{style:{flex:1,fontSize:12,color:"#374151"}},topic.name), pA!==null&&React.createElement("span",{style:{fontSize:11,fontWeight:600,color:accColor(pA)}},pA+"% ✓"), React.createElement("span",{style:{fontSize:10,color:metaOk?"#10B981":"#9CA3AF"}},x.questoes_respondidas+"/30q"), x.proxima_revisao&&React.createElement("span",{style:{fontSize:10,color:x.proxima_revisao<=today?"#EF4444":"#6B7280",background:x.proxima_revisao<=today?"#FEF2F2":"#F8FAFC",padding:"1px 5px",borderRadius:4}},fmtDate(x.proxima_revisao)), React.createElement("button",{onClick:()=>setModal({topic,data:x}),style:{background:"#F1F5F9",border:"none",borderRadius:5,padding:"3px 8px",fontSize:10,cursor:"pointer",color:"#6B7280"}},"Editar") ); }) )); })
+            ),
+            tab==="revisoes" && React.createElement("div",null,
+                React.createElement("div",{style:{...s.grid3,marginBottom:14}}, React.createElement("div",{style:{...s.card,background:"#FEF2F2",border:"0.5px solid #FCA5A5"}}, React.createElement("div",{style:{fontSize:11,color:"#991B1B",fontWeight:600,marginBottom:4}},"Vencidas hoje"), React.createElement("div",{style:{fontSize:28,fontWeight:700,color:"#EF4444"}},revVenc.length)), React.createElement("div",{style:{...s.card,background:"#FFFBEB",border:"0.5px solid #FDE68A"}}, React.createElement("div",{style:{fontSize:11,color:"#92400E",fontWeight:600,marginBottom:4}},"Próximos 7 dias"), React.createElement("div",{style:{fontSize:28,fontWeight:700,color:"#F59E0B"}},revProx.length)), React.createElement("div",{style:{...s.card,background:"#ECFDF5",border:"0.5px solid #6EE7B7"}}, React.createElement("div",{style:{fontSize:11,color:"#065F46",fontWeight:600,marginBottom:4}},"Total de revisões feitas"), React.createElement("div",{style:{fontSize:28,fontWeight:700,color:"#10B981"}},allT.reduce((s,t)=>s+(td[t.id]?.revisoes?.length||0),0)))),
+                revVenc.length>0 && React.createElement("div",{style:{...s.card,background:"#FFF7ED",border:"0.5px solid #FED7AA",marginBottom:12}}, React.createElement("div",{style:{fontSize:13,fontWeight:600,color:"#9A3412",marginBottom:10}},"🔴 Revisões vencidas — faça agora"), revVenc.map(t=>React.createElement("div",{key:t.id,style:{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:"0.5px solid #FEF9EE"}}, React.createElement("div",{style:{width:7,height:7,borderRadius:"50%",background:"#EF4444",flexShrink:0}}), React.createElement("div",{style:{flex:1}}, React.createElement("div",{style:{fontSize:12,fontWeight:500}},t.name), React.createElement("div",{style:{fontSize:10,color:"#9CA3AF"}},t.discName+" · Venceu: "+fmtDate(td[t.id]?.proxima_revisao))), React.createElement("button",{onClick:()=>markRev(t.id),style:{background:"#10B981",color:"white",border:"none",borderRadius:5,padding:"5px 12px",fontSize:11,cursor:"pointer",fontWeight:600}},"Marcar revisado")))),
+                revProx.length>0 && React.createElement("div",{style:{...s.card,marginBottom:12}}, React.createElement("div",{style:{fontSize:13,fontWeight:600,marginBottom:10}},"🟡 Próximas revisões (7 dias)"), revProx.map(t=>{ const x=td[t.id]; const diff=Math.ceil((new Date(x.proxima_revisao)-new Date(today))/86400000); return React.createElement("div",{key:t.id,style:{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:"0.5px solid #F8FAFC"}}, React.createElement("div",{style:{width:7,height:7,borderRadius:"50%",background:"#F59E0B",flexShrink:0}}), React.createElement("div",{style:{flex:1}}, React.createElement("div",{style:{fontSize:12,fontWeight:500}},t.name), React.createElement("div",{style:{fontSize:10,color:"#9CA3AF"}},t.discName+" · em "+diff+" dia"+(diff!==1?"s":"")), React.createElement("span",{style:{fontSize:11,color:"#F59E0B",fontWeight:600}},fmtDate(x.proxima_revisao))); })),
+                React.createElement("div",{style:s.card}, React.createElement("div",{style:{fontSize:13,fontWeight:600,marginBottom:10}},"Todos os tópicos concluídos"), allT.filter(t=>td[t.id]?.status==="concluido").length===0 ? React.createElement("div",{style:{fontSize:12,color:"#9CA3AF"}},"Nenhum tópico concluído ainda.") : allT.filter(t=>td[t.id]?.status==="concluido").map(t=>{ const x=td[t.id]; const venc=x.proxima_revisao&&x.proxima_revisao<=today; return React.createElement("div",{key:t.id,style:{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"0.5px solid #F8FAFC"}}, React.createElement("div",{style:{width:6,height:6,borderRadius:"50%",background:venc?"#EF4444":"#10B981"}}), React.createElement("span",{style:{flex:1,fontSize:12}},t.name), React.createElement("span",{style:{fontSize:10,color:"#9CA3AF"}},t.discName), React.createElement("span",{style:{fontSize:10,color:venc?"#EF4444":"#6B7280"}},fmtDate(x.proxima_revisao)), React.createElement("span",{style:{fontSize:10,color:"#9CA3AF"}},(x.revisoes?.length||0)+"x")); }))
+            ),
+            tab==="questoes" && React.createElement("div",null,
+                React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10,marginBottom:14}}, kpi("Total de questões",totQ,"respondidas","#534AB7"), kpi("Acertos",totAc,totQ+" total","#10B981"), kpi("Erros",totErr,totQ+" total","#EF4444"), kpi("% Acertos",pctAc+"%",totAc+" acertos",accColor(pctAc))),
+                critTops.length>0 && React.createElement("div",{style:{...s.card,background:"#FEF2F2",border:"0.5px solid #FCA5A5",marginBottom:12}}, React.createElement("div",{style:{fontSize:12,fontWeight:600,color:"#991B1B",marginBottom:8}},"⚠ Tópicos com alto índice de erros (< 50% acertos)"), critTops.map(t=>{ const x=td[t.id]; const pct=Math.round((x.questoes_acertos/x.questoes_respondidas)*100); return React.createElement("div",{key:t.id,style:{display:"flex",alignItems:"center",gap:8,marginBottom:5,fontSize:12}}, React.createElement("span",{style:{flex:1}},t.name), React.createElement("span",{style:{color:"#9CA3AF"}},t.discName), React.createElement("span",{style:{fontWeight:600,color:"#EF4444"}},pct+"% acertos"), React.createElement("span",{style:{color:"#9CA3AF"}},x.questoes_respondidas+"q")); })),
+                ds.map(d=>React.createElement("div",{key:d.id,style:{...s.card,marginBottom:8}}, React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}, React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6}}, React.createElement("div",{style:{width:8,height:8,borderRadius:"50%",background:d.color}}), React.createElement("span",{style:{fontSize:12,fontWeight:600}},d.name)), React.createElement("div",{style:{display:"flex",gap:10,fontSize:11,color:"#6B7280"}}, React.createElement("span",null,d.questoes+"q"), d.pctAcertos!==null && React.createElement("span",{style:{fontWeight:600,color:accColor(d.pctAcertos)}},d.pctAcertos+"% acertos"))), d.topics.map(topic=>{ const x=td[topic.id]||initTopic(); const pA=x.questoes_respondidas?Math.round((x.questoes_acertos/x.questoes_respondidas)*100):null; const ok=x.questoes_respondidas>=30; return React.createElement("div",{key:topic.id,style:{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"0.5px solid #F8FAFC"}}, React.createElement("span",{style:{flex:1,fontSize:11,color:"#374151"}},topic.name), React.createElement("span",{style:{fontSize:10,color:ok?"#10B981":"#9CA3AF",fontWeight:ok?600:400}},x.questoes_respondidas+"/30"), pA!==null && React.createElement("span",{style:{fontSize:11,fontWeight:600,color:accColor(pA),minWidth:52,textAlign:"right"}},pA+"% ✓"), React.createElement("button",{onClick:()=>setModal({topic,data:x}),style:{background:"#F1F5F9",border:"none",borderRadius:5,padding:"3px 8px",fontSize:10,cursor:"pointer",color:"#6B7280"}},"Registrar") ); }))
+            ),
+            tab==="graficos" && React.createElement("div",null,
+                React.createElement("div",{style:{...s.grid2,marginBottom:14}},
+                    React.createElement("div",{style:s.card}, React.createElement("div",{style:{fontSize:13,fontWeight:600,marginBottom:14}},"Ranking por taxa de acertos"), ds.filter(d=>d.pctAcertos!==null).sort((a,b)=>b.pctAcertos-a.pctAcertos).map((d,i)=>React.createElement("div",{key:d.id,style:{display:"flex",alignItems:"center",gap:7,marginBottom:8}}, React.createElement("span",{style:{fontSize:10,color:"#9CA3AF",minWidth:14}},"#"+(i+1)), React.createElement("div",{style:{flex:1}}, React.createElement("div",{style:{fontSize:11,marginBottom:2}},d.name), pbar(d.pctAcertos,accColor(d.pctAcertos),4)), React.createElement("span",{style:{fontSize:11,fontWeight:600,color:accColor(d.pctAcertos),minWidth:32,textAlign:"right"}},d.pctAcertos+"%"))), ds.filter(d=>d.pctAcertos!==null).length===0 && React.createElement("div",{style:{fontSize:11,color:"#9CA3AF"}},"Registre questões para ver o ranking.")),
+                    React.createElement("div",{style:s.card}, React.createElement("div",{style:{fontSize:13,fontWeight:600,marginBottom:14}},"Progresso do edital por prioridade"), Object.entries(PC).map(([k,v])=>{ const discsP=ds.filter(d=>d.priority===k); if(!discsP.length) return null; const tt=discsP.reduce((s,d)=>s+d.total,0); const tc=discsP.reduce((s,d)=>s+d.conc,0); const pct=tt?Math.round((tc/tt)*100):0; return React.createElement("div",{key:k,style:{marginBottom:10}}, React.createElement("div",{style:{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:2}}, React.createElement("span",{style:{color:v.color,fontWeight:500}},v.label), React.createElement("span",{style:{color:"#6B7280"}},pct+"% ("+tc+"/"+tt+")")), pbar(pct,v.dot,7)); }), React.createElement("div",{style:{marginTop:14,paddingTop:12,borderTop:"0.5px solid #F1F5F9"}}, React.createElement("div",{style:{fontSize:11,color:"#6B7280",marginBottom:8}},"Meta de questões (30/tópico)"), ds.map(d=>{ const meta=d.topics.length*30; const pct=Math.min(Math.round((d.questoes/meta)*100),100); return React.createElement("div",{key:d.id,style:{marginBottom:5}}, React.createElement("div",{style:{display:"flex",justifyContent:"space-between",fontSize:10,marginBottom:1}}, React.createElement("span",null,d.name), React.createElement("span",{style:{color:"#9CA3AF"}},d.questoes+"/"+meta)), pbar(pct,d.color,3)); })))
+                ),
+                React.createElement("div",{style:s.card}, React.createElement("div",{style:{fontSize:13,fontWeight:600,marginBottom:4}},"Mapa de desempenho por tópico"), React.createElement("div",{style:{fontSize:10,color:"#9CA3AF",marginBottom:12}},"Passe o mouse sobre cada célula para ver o tópico. Verde ≥70%, Amarelo 50–69%, Vermelho <50%, Cinza = sem dados."), React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:5}}, allT.map(t=>{ const x=td[t.id]; let bg="#E2E8F0"; if(x && x.questoes_respondidas>0){ const p=Math.round((x.questoes_acertos/x.questoes_respondidas)*100); bg=p>=70?"#6EE7B7":p>=50?"#FDE68A":"#FCA5A5"; } return React.createElement("div",{key:t.id,title:t.name+(td[t.id]?.questoes_respondidas>0?" — "+Math.round((td[t.id].questoes_acertos/td[t.id].questoes_respondidas)*100)+"% acertos":" — sem dados"),style:{width:26,height:26,borderRadius:4,background:bg,cursor:"help",border:"0.5px solid rgba(0,0,0,0.05)"}}); })), React.createElement("div",{style:{display:"flex",gap:14,marginTop:10,fontSize:10,color:"#6B7280"}}, ["#6EE7B7","≥70%"].concat(["#FDE68A","50–69%"],[["#FCA5A5","< 50%"],["#E2E8F0","sem dados"]]).flat().reduce((acc,v,i)=>{ if(i%2===0)acc.push(React.createElement("span",{key:i,style:{display:"flex",alignItems:"center",gap:4}},React.createElement("span",{style:{display:"inline-block",width:10,height:10,background:v,borderRadius:2}}))); else acc[acc.length-1]=React.createElement("span",{key:i,style:{display:"flex",alignItems:"center",gap:4}},acc[acc.length-1].props.children,v); return acc; },[]))
+            )
+        ),
+        modal && React.createElement(TopicModal, {topic:modal.topic, data:modal.data, onSave:saveModal, onClose:()=>setModal(null)}),
+        toast && React.createElement("div",{style:{position:"fixed",bottom:20,right:20,background:"#1E2432",color:"white",borderRadius:9,padding:"9px 16px",fontSize:12,fontWeight:500,zIndex:9999,boxShadow:"0 4px 20px rgba(0,0,0,0.2)"}}, toast)
+    );
+}
+
+function TopicModal({topic,data,onSave,onClose}){
+    const [form,setForm]=React.useState({status:data.status||"nao_iniciado",questoes_respondidas:data.questoes_respondidas||0,questoes_acertos:data.questoes_acertos||0,nivel_conhecimento:data.nivel_conhecimento||0});
+    const pA=form.questoes_respondidas>0?Math.round((form.questoes_acertos/form.questoes_respondidas)*100):0;
+    const SClocal={nao_iniciado:{label:"Não iniciado"},em_andamento:{label:"Em andamento"},concluido:{label:"Concluído"}};
+    return React.createElement("div",{style:{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:16}},
+        React.createElement("div",{style:{background:"white",borderRadius:14,padding:22,width:"100%",maxWidth:440}},
+            React.createElement("div",{style:{fontSize:14,fontWeight:600,marginBottom:3}},topic.name),
+            React.createElement("div",{style:{fontSize:11,color:"#9CA3AF",marginBottom:18}},"Atualizar dados do tópico"),
+            React.createElement("div",{style:{marginBottom:14}}, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Status"), React.createElement("select",{value:form.status,onChange:e=>setForm(f=>({...f,status:e.target.value})),style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}}, Object.entries(SClocal).map(([k,v])=>React.createElement("option",{key:k,value:k},v.label)))),
+            React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}},
+                React.createElement("div",null, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Questões respondidas"), React.createElement("input",{type:"number",min:"0",value:form.questoes_respondidas,onChange:e=>setForm(f=>({...f,questoes_respondidas:Math.max(0,parseInt(e.target.value)||0)})),style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}})),
+                React.createElement("div",null, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Acertos"), React.createElement("input",{type:"number",min:"0",max:form.questoes_respondidas,value:form.questoes_acertos,onChange:e=>setForm(f=>({...f,questoes_acertos:Math.min(f.questoes_respondidas,Math.max(0,parseInt(e.target.value)||0))})),style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}}))
+            ),
+            form.questoes_respondidas>0 && React.createElement("div",{style:{background:"#F8FAFC",borderRadius:7,padding:10,marginBottom:14,display:"flex",gap:14}}, React.createElement("div",{style:{textAlign:"center"}},React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Acertos"),React.createElement("div",{style:{fontSize:17,fontWeight:700,color:"#10B981"}},pA+"%")), React.createElement("div",{style:{textAlign:"center"}},React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Erros"),React.createElement("div",{style:{fontSize:17,fontWeight:700,color:"#EF4444"}},(100-pA)+"%")), React.createElement("div",{style:{textAlign:"center"}},React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Meta 30q"),React.createElement("div",{style:{fontSize:17,fontWeight:700,color:form.questoes_respondidas>=30?"#10B981":"#F59E0B"}},form.questoes_respondidas>=30?"✓":form.questoes_respondidas+"/30"))),
+            React.createElement("div",{style:{marginBottom:18}}, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Nível de conhecimento"), React.createElement("div",{style:{display:"flex",gap:6,marginTop:5}}, [[0,"Iniciante"],[1,"Básico"],[2,"Intermediário"],[3,"Avançado"]].map(([v,l])=>React.createElement("button",{key:v,onClick:()=>setForm(f=>({...f,nivel_conhecimento:v})),style:{flex:1,padding:"5px 0",border:`0.5px solid ${form.nivel_conhecimento===v?"#534AB7":"#D1D5DB"}`,borderRadius:5,fontSize:10,cursor:"pointer",fontWeight:form.nivel_conhecimento===v?600:400,background:form.nivel_conhecimento===v?"#EEF2FF":"white",color:form.nivel_conhecimento===v?"#534AB7":"#6B7280"}},l)), React.createElement("div",{style:{fontSize:9,color:"#9CA3AF",marginTop:3}},"Nível 0–1: rev. em 7 dias · Nível 2: 15 dias · Nível 3: 30 dias")),
+            React.createElement("div",{style:{display:"flex",gap:8}}, React.createElement("button",{onClick:onClose,style:{flex:1,padding:"9px",border:"0.5px solid #D1D5DB",borderRadius:7,fontSize:12,cursor:"pointer",background:"white",color:"#6B7280"}},"Cancelar"), React.createElement("button",{onClick:()=>onSave(topic.id,form),style:{flex:2,padding:"9px",border:"none",borderRadius:7,fontSize:12,cursor:"pointer",background:"#534AB7",color:"white",fontWeight:600}},"Salvar dados"))
+        )
+    );
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById("root"));
+</script>
+</body>
+</html>
