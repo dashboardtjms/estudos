@@ -334,21 +334,135 @@ function App() {
 }
 
 function TopicModal({topic,data,onSave,onClose}){
-    const [form,setForm]=React.useState({status:data.status||"nao_iniciado",questoes_respondidas:data.questoes_respondidas||0,questoes_acertos:data.questoes_acertos||0,nivel_conhecimento:data.nivel_conhecimento||0});
-    const pA=form.questoes_respondidas>0?Math.round((form.questoes_acertos/form.questoes_respondidas)*100):0;
-    const SClocal={nao_iniciado:{label:"Não iniciado"},em_andamento:{label:"Em andamento"},concluido:{label:"Concluído"}};
-    return React.createElement("div",{style:{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:16}},
-        React.createElement("div",{style:{background:"white",borderRadius:14,padding:22,width:"100%",maxWidth:440}},
+    const [form,setForm]=React.useState({
+        status:data.status||"nao_iniciado",
+        questoes_respondidas:data.questoes_respondidas||0,
+        questoes_acertos:data.questoes_acertos||0,
+        nivel_conhecimento:data.nivel_conhecimento||0
+    });
+
+    const pA = form.questoes_respondidas > 0
+        ? Math.round((form.questoes_acertos / form.questoes_respondidas) * 100)
+        : 0;
+
+    const levels = [
+        [0,"Iniciante"],
+        [1,"Básico"],
+        [2,"Intermediário"],
+        [3,"Avançado"]
+    ];
+
+    return React.createElement(
+        "div",
+        {style:{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:16}},
+        React.createElement(
+            "div",
+            {style:{background:"white",borderRadius:14,padding:22,width:"100%",maxWidth:440}},
             React.createElement("div",{style:{fontSize:14,fontWeight:600,marginBottom:3}},topic.name),
             React.createElement("div",{style:{fontSize:11,color:"#9CA3AF",marginBottom:18}},"Atualizar dados do tópico"),
-            React.createElement("div",{style:{marginBottom:14}}, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Status"), React.createElement("select",{value:form.status,onChange:e=>setForm(f=>({...f,status:e.target.value})),style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}}, Object.entries(SClocal).map(([k,v])=>React.createElement("option",{key:k,value:k},v.label)))),
-            React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}},
-                React.createElement("div",null, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Questões respondidas"), React.createElement("input",{type:"number",min:"0",value:form.questoes_respondidas,onChange:e=>setForm(f=>({...f,questoes_respondidas:Math.max(0,parseInt(e.target.value)||0)})),style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}})),
-                React.createElement("div",null, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Acertos"), React.createElement("input",{type:"number",min:"0",max:form.questoes_respondidas,value:form.questoes_acertos,onChange:e=>setForm(f=>({...f,questoes_acertos:Math.min(f.questoes_respondidas,Math.max(0,parseInt(e.target.value)||0))})),style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}}))
+
+            React.createElement(
+                "div",
+                {style:{marginBottom:14}},
+                React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Status"),
+                React.createElement(
+                    "select",
+                    {
+                        value:form.status,
+                        onChange:e=>setForm(f=>({...f,status:e.target.value})),
+                        style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}
+                    },
+                    Object.entries({
+                        nao_iniciado:{label:"Não iniciado"},
+                        em_andamento:{label:"Em andamento"},
+                        concluido:{label:"Concluído"}
+                    }).map(([k,v])=>React.createElement("option",{key:k,value:k},v.label))
+                )
             ),
-            form.questoes_respondidas>0 && React.createElement("div",{style:{background:"#F8FAFC",borderRadius:7,padding:10,marginBottom:14,display:"flex",gap:14}}, React.createElement("div",{style:{textAlign:"center"}},React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Acertos"),React.createElement("div",{style:{fontSize:17,fontWeight:700,color:"#10B981"}},pA+"%")), React.createElement("div",{style:{textAlign:"center"}},React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Erros"),React.createElement("div",{style:{fontSize:17,fontWeight:700,color:"#EF4444"}},(100-pA)+"%")), React.createElement("div",{style:{textAlign:"center"}},React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Meta 30q"),React.createElement("div",{style:{fontSize:17,fontWeight:700,color:form.questoes_respondidas>=30?"#10B981":"#F59E0B"}},form.questoes_respondidas>=30?"✓":form.questoes_respondidas+"/30"))),
-            React.createElement("div",{style:{marginBottom:18}}, React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Nível de conhecimento"), React.createElement("div",{style:{display:"flex",gap:6,marginTop:5}}, [[0,"Iniciante"],[1,"Básico"],[2,"Intermediário"],[3,"Avançado"]].map(([v,l])=>React.createElement("button",{key:v,onClick:()=>setForm(f=>({...f,nivel_conhecimento:v})),style:{flex:1,padding:"5px 0",border:`0.5px solid ${form.nivel_conhecimento===v?"#534AB7":"#D1D5DB"}`,borderRadius:5,fontSize:10,cursor:"pointer",fontWeight:form.nivel_conhecimento===v?600:400,background:form.nivel_conhecimento===v?"#EEF2FF":"white",color:form.nivel_conhecimento===v?"#534AB7":"#6B7280"}},l)), React.createElement("div",{style:{fontSize:9,color:"#9CA3AF",marginTop:3}},"Nível 0–1: rev. em 7 dias · Nível 2: 15 dias · Nível 3: 30 dias")),
-            React.createElement("div",{style:{display:"flex",gap:8}}, React.createElement("button",{onClick:onClose,style:{flex:1,padding:"9px",border:"0.5px solid #D1D5DB",borderRadius:7,fontSize:12,cursor:"pointer",background:"white",color:"#6B7280"}},"Cancelar"), React.createElement("button",{onClick:()=>onSave(topic.id,form),style:{flex:2,padding:"9px",border:"none",borderRadius:7,fontSize:12,cursor:"pointer",background:"#534AB7",color:"white",fontWeight:600}},"Salvar dados"))
+
+            React.createElement(
+                "div",
+                {style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}},
+                React.createElement(
+                    "div",
+                    null,
+                    React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Questões respondidas"),
+                    React.createElement("input",{
+                        type:"number",
+                        min:"0",
+                        value:form.questoes_respondidas,
+                        onChange:e=>setForm(f=>({...f,questoes_respondidas:Math.max(0,parseInt(e.target.value)||0)})),
+                        style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}
+                    })
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Acertos"),
+                    React.createElement("input",{
+                        type:"number",
+                        min:"0",
+                        max:form.questoes_respondidas,
+                        value:form.questoes_acertos,
+                        onChange:e=>setForm(f=>({...f,questoes_acertos:Math.min(f.questoes_respondidas,Math.max(0,parseInt(e.target.value)||0))})),
+                        style:{width:"100%",marginTop:4,border:"0.5px solid #D1D5DB",borderRadius:7,padding:"7px 9px",fontSize:12,outline:"none"}
+                    })
+                )
+            ),
+
+            form.questoes_respondidas>0 && React.createElement(
+                "div",
+                {style:{background:"#F8FAFC",borderRadius:7,padding:10,marginBottom:14,display:"flex",gap:14}},
+                React.createElement("div",{style:{textAlign:"center"}},
+                    React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Acertos"),
+                    React.createElement("div",{style:{fontSize:17,fontWeight:700,color:"#10B981"}},pA+"%")
+                ),
+                React.createElement("div",{style:{textAlign:"center"}},
+                    React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Erros"),
+                    React.createElement("div",{style:{fontSize:17,fontWeight:700,color:"#EF4444"}},(100-pA)+"%")
+                ),
+                React.createElement("div",{style:{textAlign:"center"}},
+                    React.createElement("div",{style:{fontSize:10,color:"#6B7280"}},"Meta 30q"),
+                    React.createElement("div",{style:{fontSize:17,fontWeight:700,color:form.questoes_respondidas>=30?"#10B981":"#F59E0B"}},form.questoes_respondidas>=30?"✓":form.questoes_respondidas+"/30")
+                )
+            ),
+
+            React.createElement(
+                "div",
+                {style:{marginBottom:18}},
+                React.createElement("label",{style:{fontSize:11,color:"#6B7280",fontWeight:500}},"Nível de conhecimento"),
+                React.createElement(
+                    "div",
+                    {style:{display:"flex",gap:6,marginTop:5}},
+                    levels.map(([v,l])=>React.createElement(
+                        "button",
+                        {
+                            key:v,
+                            onClick:()=>setForm(f=>({...f,nivel_conhecimento:v})),
+                            style:{
+                                flex:1,
+                                padding:"5px 0",
+                                border:`0.5px solid ${form.nivel_conhecimento===v?"#534AB7":"#D1D5DB"}`,
+                                borderRadius:5,
+                                fontSize:10,
+                                cursor:"pointer",
+                                fontWeight:form.nivel_conhecimento===v?600:400,
+                                background:form.nivel_conhecimento===v?"#EEF2FF":"white",
+                                color:form.nivel_conhecimento===v?"#534AB7":"#6B7280"
+                            }
+                        },
+                        l
+                    ))
+                ),
+                React.createElement("div",{style:{fontSize:9,color:"#9CA3AF",marginTop:3}},"Nível 0–1: rev. em 7 dias · Nível 2: 15 dias · Nível 3: 30 dias")
+            ),
+
+            React.createElement(
+                "div",
+                {style:{display:"flex",gap:8}},
+                React.createElement("button",{onClick:onClose,style:{flex:1,padding:"9px",border:"0.5px solid #D1D5DB",borderRadius:7,fontSize:12,cursor:"pointer",background:"white",color:"#6B7280"}},"Cancelar"),
+                React.createElement("button",{onClick:()=>onSave(topic.id,form),style:{flex:2,padding:"9px",border:"none",borderRadius:7,fontSize:12,cursor:"pointer",background:"#534AB7",color:"white",fontWeight:600}},"Salvar dados")
+            )
         )
     );
 }
