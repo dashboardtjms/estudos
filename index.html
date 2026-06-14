@@ -261,7 +261,7 @@ function App() {
   };
 
   const saveModal = (tid, form) => {
-    const niv = form.questoes_respondidas >= 30
+    const niv = form.questoes_respondidas >= 100
       ? (form.questoes_acertos / form.questoes_respondidas >= 0.7 ? 3
         : form.questoes_acertos / form.questoes_respondidas >= 0.5 ? 2 : 1) : 0;
     const today = todayStr();
@@ -483,7 +483,7 @@ function App() {
               disc.topics.map(topic => {
                 const x = td[topic.id] || initT(); const sc = SC[x.status];
                 const pA = x.questoes_respondidas ? Math.round((x.questoes_acertos/x.questoes_respondidas)*100) : null;
-                const metaOk = x.questoes_respondidas >= 30;
+                const metaOk = x.questoes_respondidas >= 100;
                 return E("div", { key:topic.id, style:{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:"0.5px solid #F8FAFC"} },
                   E("select", { value:x.status, onChange:e=>setStatus(topic.id,e.target.value),
                     style:{border:`0.5px solid ${sc.color}`,borderRadius:5,padding:"2px 5px",fontSize:10,color:sc.color,background:sc.bg,cursor:"pointer",outline:"none"} },
@@ -568,7 +568,7 @@ function App() {
           d.topics.map(topic => {
             const x=td[topic.id]||initT();
             const pA=x.questoes_respondidas?Math.round((x.questoes_acertos/x.questoes_respondidas)*100):null;
-            const ok=x.questoes_respondidas>=30;
+            const ok=x.questoes_respondidas>=100;
             return E("div", { key:topic.id, style:{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"0.5px solid #F8FAFC"} },
               E("span", { style:{flex:1,fontSize:11,color:"#374151"} }, topic.name),
               E("span", { style:{fontSize:10,color:ok?"#10B981":"#9CA3AF",fontWeight:ok?600:400} }, x.questoes_respondidas+"/30"),
@@ -670,7 +670,7 @@ function TopicModal({topic, data, onSave, onClose}) {
         E("div", { style:{textAlign:"center"} }, E("div", { style:{fontSize:10,color:"#6B7280"} }, "Acertos"), E("div", { style:{fontSize:17,fontWeight:700,color:"#10B981"} }, pA+"%")),
         E("div", { style:{textAlign:"center"} }, E("div", { style:{fontSize:10,color:"#6B7280"} }, "Erros"), E("div", { style:{fontSize:17,fontWeight:700,color:"#EF4444"} }, (100-pA)+"%")),
         E("div", { style:{textAlign:"center"} }, E("div", { style:{fontSize:10,color:"#6B7280"} }, "Meta 100q"),
-          E("div", { style:{fontSize:17,fontWeight:700,color:form.questoes_respondidas>=30?"#10B981":"#F59E0B"} }, form.questoes_respondidas>=30?"✓":form.questoes_respondidas+"/30"))),
+          E("div", { style:{fontSize:17,fontWeight:700,color:form.questoes_respondidas>=1000?"#10B981":"#F59E0B"} }, form.questoes_respondidas>=1000?"✓":form.questoes_respondidas+"/30"))),
       E("div", { style:{marginBottom:18} },
         E("label", { style:{fontSize:11,color:"#6B7280",fontWeight:500} }, "Nível de conhecimento"),
         E("div", { style:{display:"flex",gap:6,marginTop:5} },
