@@ -494,7 +494,7 @@ function App() {
                   x.proxima_revisao && E("span", { style:{fontSize:10,color:x.proxima_revisao<=today?"#EF4444":"#6B7280",
                     background:x.proxima_revisao<=today?"#FEF2F2":"#F8FAFC",padding:"1px 5px",borderRadius:4} }, fmtDate(x.proxima_revisao)),
                   E("button", { onClick:()=>setModal({topic,data:x}),
-                    style:{background:"#F1F5F9",border:"none",borderRadius:5,padding:"3px 8px",fontSize:10,cursor:"pointer",color:"#6B7280"} }, "ditar"));})))})),
+                    style:{background:"#F1F5F9",border:"none",borderRadius:5,padding:"3px 8px",fontSize:10,cursor:"pointer",color:"#6B7280"} }, "editar"));})))})),
 
       // ── TAB REVISÕES ──
       tab==="revisoes" && E("div", null,
