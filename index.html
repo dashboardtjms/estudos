@@ -39,13 +39,10 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ─── UUID PERSISTENTE (sem necessidade de auth) ───────────────────────────────
-// Gera e persiste um UUID único no localStorage para identificar o usuário.
-// Isso garante que os dados sejam sempre associados ao mesmo "usuário" neste browser.
 function getOrCreateUserId() {
   const KEY = 'tjms_user_id';
   let uid = localStorage.getItem(KEY);
   if (!uid) {
-    // Gera UUID v4
     uid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
       const r = Math.random() * 16 | 0;
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
@@ -67,7 +64,8 @@ const DISCS=[
   {id:2,name:"Direito Constitucional",priority:"muito_alta",weight:9,color:"#534AB7",topics:[
     {id:201,name:"Dos Direitos e Deveres Individuais e Coletivos (artigo 5º CF/1988)"},{id:202,name:"Disposições Gerais (Administração Pública - arts 37 e 38 da CF/1988)"},
     {id:203,name:"União: Bens e Competências Exclusivas, Privativas, Comuns e Concorrentes(art. 20 a 24 da CF/1988) "},{id:204,name:"Dos Servidores Públicos (arts. 39 a 41 da CF/1988)"},
-    {id:205,name:"Espécies de Nacionalidade (Brasileiros Natos e Naturalizados)"},{id:206, name:"Constituição: Conceito, Estrutura, Supremacia e Classificação", status:"caiu/2026", weight:6, color:"#0F6E56"},
+    {id:205,name:"Espécies de Nacionalidade (Brasileiros Natos e Naturalizados)"},
+    {id:206, name:"Constituição: Conceito, Estrutura, Supremacia e Classificação. caiu/2026", weight:6, color:"#0F6E56"},
     {id:207,name:"Poder Judiciário e CNJ"},{id:208,name:"Ministério Público e Defensoria Pública"},
     {id:209,name:"Municípios - Organização e Competências (arts. 29 a 31 daCF/1988)"},{id:210,name:"Soberania Popular, (Voto, Plebiscito, Referendo, Iniciativa popular), Alistamento e Elegibilidade"}]},
   {id:3,name:"Direito Processual Civil",priority:"muito_alta",weight:6,color:"#0F6E56",topics:[
@@ -175,11 +173,22 @@ function App() {
   const [ready, setReady]     = useState(false);
   const userIdRef = useRef(null);
 
+  // Função auxiliar para destacar "caiu/2026" em vermelho/negrito
+  const formatTopicName = (name) => {
+    if (!name || typeof name !== 'string') return name;
+    if (!name.includes('caiu/2026')) return name;
+    const parts = name.split(/(caiu\/2026)/g);
+    return parts.map((part, idx) => 
+      part === 'caiu/2026'
+        ? React.createElement('span', { key: idx, style: { color: '#EF4444', fontWeight: 'bold' } }, part)
+        : part
+    );
+  };
+
   // Inicialização: obtém ID persistente do localStorage + carrega dados do Supabase
   useEffect(() => {
     (async () => {
       try {
-        // Obtém (ou cria) o UUID persistente deste browser — sem necessidade de auth
         const uid = getOrCreateUserId();
         userIdRef.current = uid;
         setUserId(uid);
@@ -376,7 +385,7 @@ function App() {
     E("div", { style: s.hdr },
       E("div", { style: s.hdrIn },
         E("div", { style: s.logo },
-          E("div", { style: s.logoBox }, "CENTRAL"),
+          E("div", { style: s.logoBox }, "C"),
           E("div", null,
             E("div", { style:{fontSize:13,fontWeight:600,letterSpacing:"-0.02em"} }, "Central de Estudos"),
             E("div", { style:{fontSize:10,color:"#94A3B8"} }, "TJMS · Analista Judiciário · FGV"))),
@@ -431,7 +440,7 @@ function App() {
                 ? E("div", { style:{fontSize:12,color:"#6B7280"} }, "Tudo em dia!")
                 : revVenc.slice(0,4).map(t => E("div", { key:t.id,
                     style:{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,marginBottom:5} },
-                    E("span", { style:{color:"#7C2D12",flex:1,paddingRight:8} }, t.name),
+                    E("span", { style:{color:"#7C2D12",flex:1,paddingRight:8} }, formatTopicName(t.name)),
                     E("button", { onClick:()=>markRev(t.id),
                       style:{background:"#10B981",color:"white",border:"none",borderRadius:5,padding:"3px 8px",fontSize:10,cursor:"pointer",fontWeight:600,flexShrink:0} }, "Revisar")))))),
 
@@ -489,7 +498,7 @@ function App() {
                   E("select", { value:x.status, onChange:e=>setStatus(topic.id,e.target.value),
                     style:{border:`0.5px solid ${sc.color}`,borderRadius:5,padding:"2px 5px",fontSize:10,color:sc.color,background:sc.bg,cursor:"pointer",outline:"none"} },
                     Object.entries(SC).map(([k,v])=>E("option",{key:k,value:k},v.label))),
-                  E("span", { style:{flex:1,fontSize:12,color:"#374151"} }, topic.name),
+                  E("span", { style:{flex:1,fontSize:12,color:"#374151"} }, formatTopicName(topic.name)),
                   pA!==null && E("span", { style:{fontSize:11,fontWeight:600,color:accColor(pA)} }, pA+"% ✓"),
                   E("span", { style:{fontSize:10,color:metaOk?"#10B981":"#9CA3AF"} }, x.questoes_respondidas+"/100q"),
                   x.proxima_revisao && E("span", { style:{fontSize:10,color:x.proxima_revisao<=today?"#EF4444":"#6B7280",
@@ -515,7 +524,7 @@ function App() {
           revVenc.map(t => E("div", { key:t.id, style:{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:"0.5px solid #FEF9EE"} },
             E("div", { style:{width:7,height:7,borderRadius:"50%",background:"#EF4444",flexShrink:0} }),
             E("div", { style:{flex:1} },
-              E("div", { style:{fontSize:12,fontWeight:500} }, t.name),
+              E("div", { style:{fontSize:12,fontWeight:500} }, formatTopicName(t.name)),
               E("div", { style:{fontSize:10,color:"#9CA3AF"} }, t.discName+" · Venceu: "+fmtDate(td[t.id]?.proxima_revisao))),
             E("button", { onClick:()=>markRev(t.id),
               style:{background:"#10B981",color:"white",border:"none",borderRadius:5,padding:"5px 12px",fontSize:11,cursor:"pointer",fontWeight:600} }, "Marcar revisado")))),
@@ -526,7 +535,7 @@ function App() {
             return E("div", { key:t.id, style:{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:"0.5px solid #F8FAFC"} },
               E("div", { style:{width:7,height:7,borderRadius:"50%",background:"#F59E0B",flexShrink:0} }),
               E("div", { style:{flex:1} },
-                E("div", { style:{fontSize:12,fontWeight:500} }, t.name),
+                E("div", { style:{fontSize:12,fontWeight:500} }, formatTopicName(t.name)),
                 E("div", { style:{fontSize:10,color:"#9CA3AF"} }, t.discName+" · em "+diff+" dia"+(diff!==1?"s":""))),
               E("span", { style:{fontSize:11,color:"#F59E0B",fontWeight:600} }, fmtDate(x.proxima_revisao)));  })),
         E("div", { style: s.card },
@@ -537,7 +546,7 @@ function App() {
                 const x=td[t.id]; const venc=x.proxima_revisao&&x.proxima_revisao<=today;
                 return E("div", { key:t.id, style:{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"0.5px solid #F8FAFC"} },
                   E("div", { style:{width:6,height:6,borderRadius:"50%",background:venc?"#EF4444":"#10B981"} }),
-                  E("span", { style:{flex:1,fontSize:12} }, t.name),
+                  E("span", { style:{flex:1,fontSize:12} }, formatTopicName(t.name)),
                   E("span", { style:{fontSize:10,color:"#9CA3AF"} }, t.discName),
                   E("span", { style:{fontSize:10,color:venc?"#EF4444":"#6B7280"} }, fmtDate(x.proxima_revisao)),
                   E("span", { style:{fontSize:10,color:"#9CA3AF"} }, (x.revisoes?.length||0)+"x"));}))),
@@ -554,7 +563,7 @@ function App() {
           critTops.map(t => {
             const x=td[t.id]; const pct=Math.round((x.questoes_acertos/x.questoes_respondidas)*100);
             return E("div", { key:t.id, style:{display:"flex",alignItems:"center",gap:8,marginBottom:5,fontSize:12} },
-              E("span", { style:{flex:1} }, t.name),
+              E("span", { style:{flex:1} }, formatTopicName(t.name)),
               E("span", { style:{color:"#9CA3AF"} }, t.discName),
               E("span", { style:{fontWeight:600,color:"#EF4444"} }, pct+"% acertos"),
               E("span", { style:{color:"#9CA3AF"} }, x.questoes_respondidas+"q"));})),
@@ -571,7 +580,7 @@ function App() {
             const pA=x.questoes_respondidas?Math.round((x.questoes_acertos/x.questoes_respondidas)*100):null;
             const ok=x.questoes_respondidas>=100;
             return E("div", { key:topic.id, style:{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"0.5px solid #F8FAFC"} },
-              E("span", { style:{flex:1,fontSize:11,color:"#374151"} }, topic.name),
+              E("span", { style:{flex:1,fontSize:11,color:"#374151"} }, formatTopicName(topic.name)),
               E("span", { style:{fontSize:10,color:ok?"#10B981":"#9CA3AF",fontWeight:ok?600:400} }, x.questoes_respondidas+"/30"),
               pA!==null && E("span", { style:{fontSize:11,fontWeight:600,color:accColor(pA),minWidth:52,textAlign:"right"} }, pA+"% ✓"),
               E("button", { onClick:()=>setModal({topic,data:x}),
@@ -690,83 +699,5 @@ function TopicModal({topic, data, onSave, onClose}) {
 ReactDOM.render(React.createElement(App), document.getElementById('root'));
 </script>
 
-<!--
-==========================================================
-  INSTRUÇÕES DE DEPLOY — SUPABASE + GITHUB PAGES
-==========================================================
-
-1. SUPABASE — CRIAR AS TABELAS (execute no SQL Editor):
-
--- Tabela de progresso por tópico
-CREATE TABLE IF NOT EXISTS user_progress (
-  id                   uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id              uuid NOT NULL,
-  topic_id             integer NOT NULL,
-  status               text DEFAULT 'nao_iniciado',
-  questoes_respondidas integer DEFAULT 0,
-  questoes_acertos     integer DEFAULT 0,
-  ultima_revisao       date,
-  proxima_revisao      date,
-  revisoes             text[] DEFAULT '{}',
-  nivel_conhecimento   integer DEFAULT 0,
-  updated_at           timestamptz DEFAULT now(),
-  UNIQUE (user_id, topic_id)
-);
-
--- Tabela de horas semanais
-CREATE TABLE IF NOT EXISTS week_logs (
-  id        uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id   uuid NOT NULL,
-  log_date  date NOT NULL,
-  hours     numeric DEFAULT 0,
-  UNIQUE (user_id, log_date)
-);
-
--- ⚠️ RLS: habilitar com políticas PÚBLICAS (sem auth.uid())
--- Este app usa um UUID gerado no browser, sem login.
--- As políticas permitem qualquer cliente anon ler/escrever seus próprios dados.
-
-ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
-ALTER TABLE week_logs ENABLE ROW LEVEL SECURITY;
-
--- Permite leitura pública filtrada por user_id
-CREATE POLICY "user_progress_select" ON user_progress
-  FOR SELECT USING (true);
-
--- Permite inserção/atualização pública
-CREATE POLICY "user_progress_insert" ON user_progress
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "user_progress_update" ON user_progress
-  FOR UPDATE USING (true) WITH CHECK (true);
-
--- Mesmas políticas para week_logs
-CREATE POLICY "week_logs_select" ON week_logs
-  FOR SELECT USING (true);
-
-CREATE POLICY "week_logs_insert" ON week_logs
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "week_logs_update" ON week_logs
-  FOR UPDATE USING (true) WITH CHECK (true);
-
--- IMPORTANTE: Não é necessário habilitar "Anonymous Sign-ins".
--- O app usa um UUID gerado e salvo no localStorage do browser.
-
-2. GITHUB PAGES:
-   - Crie repositório público (ex: tjms-estudos)
-   - Faça upload deste index.html na raiz
-   - Settings > Pages > Branch: main > / (root) > Save
-   - Acesse: https://SEU_USUARIO.github.io/tjms-estudos/
-
-3. NOTAS IMPORTANTES:
-   - O UUID do usuário fica salvo no localStorage do browser.
-   - Se o usuário limpar o localStorage ou trocar de browser, os dados
-     ficam no Supabase mas serão associados a um novo UUID.
-   - Para recuperar dados em outro dispositivo, implemente um sistema
-     de login (ex: magic link) futuramente.
-
-==========================================================
--->
 </body>
 </html>
