@@ -21,7 +21,7 @@ select,input,button{font-family:inherit}
 <div id="loading">
   <div class="logo">J</div>
   <div class="spinner"></div>
-  <p>Carregando dados do Supabase...</p>
+  <p>Carregando dados...</p>
 </div>
 
 <div id="root"></div>
@@ -67,7 +67,7 @@ const DISCS=[
   {id:2,name:"Direito Constitucional",priority:"muito_alta",weight:9,color:"#534AB7",topics:[
     {id:201,name:"Dos Direitos e Deveres Individuais e Coletivos (artigo 5º CF/1988)"},{id:202,name:"Disposições Gerais (Administração Pública - arts 37 e 38 da CF/1988)"},
     {id:203,name:"União: Bens e Competências Exclusivas, Privativas, Comuns e Concorrentes(art. 20 a 24 da CF/1988) "},{id:204,name:"Dos Servidores Públicos (arts. 39 a 41 da CF/1988)"},
-    {id:205,name:"Espécies de Nacionalidade (Brasileiros Natos e Naturalizados)"},{id:206,name:"Constituição: Conceito, Estrutura, Supremacia e Classificação",'<span style="color:#0F6E56;">caiu/2026</span>',weight:6,color:"#0F6E56"},
+    {id:205,name:"Espécies de Nacionalidade (Brasileiros Natos e Naturalizados)"},{id:206, name:"Constituição: Conceito, Estrutura, Supremacia e Classificação", status:"caiu/2026", weight:6, color:"#0F6E56"},
     {id:207,name:"Poder Judiciário e CNJ"},{id:208,name:"Ministério Público e Defensoria Pública"},
     {id:209,name:"Municípios - Organização e Competências (arts. 29 a 31 daCF/1988)"},{id:210,name:"Soberania Popular, (Voto, Plebiscito, Referendo, Iniciativa popular), Alistamento e Elegibilidade"}]},
   {id:3,name:"Direito Processual Civil",priority:"muito_alta",weight:6,color:"#0F6E56",topics:[
@@ -376,7 +376,7 @@ function App() {
     E("div", { style: s.hdr },
       E("div", { style: s.hdrIn },
         E("div", { style: s.logo },
-          E("div", { style: s.logoBox }, "J"),
+          E("div", { style: s.logoBox }, "CENTRAL"),
           E("div", null,
             E("div", { style:{fontSize:13,fontWeight:600,letterSpacing:"-0.02em"} }, "Central de Estudos"),
             E("div", { style:{fontSize:10,color:"#94A3B8"} }, "TJMS · Analista Judiciário · FGV"))),
