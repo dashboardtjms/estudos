@@ -53,13 +53,50 @@ function getOrCreateUserId() {
 }
 
 // ─── DADOS DO EDITAL TJMS ─────────────────────────────────────────────────────
-const DISCS=[
-  {id:1,name:"Língua Portuguesa",priority:"muito_alta",weight:15,color:"#185FA5",topics:[
-    {id:101,name:"Interpretação e compreensão de texto caiu/2026", weight:6, color:"#0F6E56"},{id:102,name:"Tipologia e Gênero Textual"},
-    {id:103,name:"Reescrita de Frases ou Substituição de Palavras caiu/2026", weight:6, color:"#0F6E56"},{id:104,name:"Coerência. Coesão (Anáfora, Catáfora, Uso dos Conectores) caiu/2026", weight:6, color:"#0F6E56"},
-    {id:105,name:"Semântica Significação de Vocábulo e Expressões caiu/2026", weight:6, color:"#0F6E56"},{id:106,name:"Adjetivo caiu/2026", weight:6, color:"#0F6E56"},
-    {id:107,name:"Conjunção"},{id:108,name:"Pontuação (Ponto, Vírgula, Travessão, Aspas, Parênteses)"},
-    {id:109,name:"Vozes (Voz Passiva e Voz Ativa)"},
+const DISCS = [
+  {
+    id: 1,
+    name: "Língua Portuguesa",
+    priority: "muito_alta",
+    weight: 15,
+    color: "#185FA5",
+    topics: [
+      { id: 101, name: "▸\tInterpretação e Compreensão de texto" },
+      { id: 102, name: "▸\tOrganização estrutural dos textos" },
+      { id: 103, name: "▸\tMarcas de textualidade: coesão, coerência e intertextualidade" },
+      { id: 104, name: "▸\tModos de organização discursiva" },
+      { id: 105, name: "–\tDescrição, narração, exposição, argumentação e injunção" },
+      { id: 106, name: "–\tCaracterísticas específicas de cada modo" },
+      { id: 107, name: "▸\tTipos textuais" },
+      { id: 108, name: "–\tInformativo, publicitário, propagandístico, normativo, didático e divinatório" },
+      { id: 109, name: "▸\tTextos literários e não literários" },
+      { id: 110, name: "▸\tTipologia da frase portuguesa" },
+      { id: 111, name: "▸\tEstrutura da frase portuguesa: operações de deslocamento, substituição, modificação e correção" },
+      { id: 112, name: "▸\tProblemas estruturais das frases" },
+      { id: 113, name: "▸\tNorma culta" },
+      { id: 114, name: "▸\tPontuação e sinais gráficos" },
+      { id: 115, name: "▸\tOrganização sintática das frases: termos e orações" },
+      { id: 116, name: "▸\tOrdem direta e inversa" },
+      { id: 117, name: "▸\tTipos de discurso" },
+      { id: 118, name: "▸\tRegistros de linguagem" },
+      { id: 119, name: "▸\tFunções da linguagem" },
+      { id: 120, name: "▸\tElementos dos atos de comunicação" },
+      { id: 121, name: "▸\tEstrutura e formação de palavras" },
+      { id: 122, name: "▸\tFormas de abreviação" },
+      { id: 123, name: "▸\tClasses de palavras: aspectos morfológicos, sintáticos, semânticos e textuais de" },
+      { id: 124, name: "–\tSubstantivos, adjetivos, artigos, numerais, pronomes" },
+      { id: 125, name: "–\tVerbos, advérbios, conjunções e interjeições" },
+      { id: 126, name: "–\tOs modalizadores" },
+      { id: 127, name: "▸\tSentido próprio e figurado" },
+      { id: 128, name: "▸\tAntônimos, sinônimos, parônimos e hiperônimos" },
+      { id: 129, name: "▸\tPolissemia e ambiguidade" },
+      { id: 130, name: "▸\tOs dicionários: tipos; a organização de verbetes" },
+      { id: 131, name: "▸\tVocabulário: neologismos, arcaísmos, estrangeirismos, latinismos" },
+      { id: 132, name: "▸\tOrtografia e acentuação gráfica" },
+      { id: 133, name: "▸\tA crase" }
+    ]
+  }
+];
     {id:110,name:"Fatos da Língua Portuguesa (Porque, Por Que, Porquê, Onde, Aonde, Há, A)"}]},
   {id:2,name:"Direito Constitucional",priority:"muito_alta",weight:5,color:"#534AB7",topics:[
     {id:201,name:"Dos Direitos e Deveres Individuais e Coletivos (artigo 5º CF/1988)"},{id:202,name:"Disposições Gerais (Administração Pública - arts 37 e 38 da CF/1988)"},
@@ -483,7 +520,7 @@ function App() {
                 E("div", { style:{display:"flex",alignItems:"center",gap:6,marginBottom:4} },
                   E("span", { style:{fontSize:13,fontWeight:600} }, disc.name),
                   E("span", { style:{background:pc.bg,color:pc.color,fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:8} }, pc.label),
-                  E("span", { style:{background:"#F1F5F9",color:"#6B7280",fontSize:10,padding:"1px 6px",borderRadius:8} }, disc.weight+"_questões na prova ")),
+                  E("span", { style:{background:"#F1F5F9",color:"#6B7280",fontSize:10,padding:"1px 6px",borderRadius:8} }, disc.weight+" --> questões na prova")),
                 pbar(dstat?.pct||0, disc.color, 4)),
               E("div", { style:{textAlign:"right",minWidth:72} },
                 E("div", { style:{fontSize:15,fontWeight:700,color:disc.color} }, (dstat?.pct||0)+"%"),
