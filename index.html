@@ -60,39 +60,23 @@ const DISCS = [
     priority: "muito_alta",
     weight: 15,
     color: "#185FA5",
-    topics: [
-      { id: 101, name: "▸\tInterpretação e Compreensão de texto" },
-      { id: 102, name: "▸\tOrganização estrutural dos textos" },
-      { id: 103, name: "▸\tMarcas de textualidade: coesão, coerência e intertextualidade" },
-      { id: 104, name: "▸\tModos de organização discursiva (Descrição, narração, exposição, argumentação e injunção)" },
-      { id: 105, name: "–\tCaracterísticas específicas de cada modo" },
-      { id: 106, name: "▸\tTipos textuais" },
-      { id: 107, name: "–\tInformativo, publicitário, propagandístico, normativo, didático e divinatório" },
-      { id: 108, name: "▸\tTextos literários e não literários" },
-      { id: 109, name: "▸\tTipologia da frase portuguesa (declarativas, interrogativas, imperativas, exclamativas e optativas)" },
-      { id: 110, name: "▸\tEstrutura da frase portuguesa: operações de deslocamento, substituição, modificação e correção" },
-      { id: 111, name: "▸\tProblemas estruturais das frases" },
-      { id: 112, name: "▸\tNorma culta" },
-      { id: 113, name: "▸\tPontuação e sinais gráficos" },
-      { id: 114, name: "▸\tOrganização sintática das frases: termos e orações" },
-      { id: 115, name: "▸\tOrdem direta e inversa" },
-      { id: 116, name: "▸\tTipos de discurso" },
-      { id: 117, name: "▸\tRegistros de linguagem" },
-      { id: 118, name: "▸\tFunções da linguagem" },
-      { id: 119, name: "▸\tElementos dos atos de comunicação" },
-      { id: 120, name: "▸\tEstrutura e formação de palavras" },
-      { id: 121, name: "▸\tFormas de abreviação" },
-      { id: 122, name: "▸\tClasses de palavras: aspectos morfológicos, sintáticos, semânticos e textuais" },
-      { id: 123, name: "–\tSubstantivos, adjetivos, artigos, numerais, pronomes" },
-      { id: 124, name: "–\tVerbos, advérbios, conjunções e interjeições" },
-      { id: 125, name: "–\tOs modalizadores" },
-      { id: 126, name: "▸\tSentido próprio e figurado" },
-      { id: 127, name: "▸\tAntônimos, sinônimos, parônimos e hiperônimos" },
-      { id: 128, name: "▸\tPolissemia e ambiguidade" },
-      { id: 129, name: "▸\tOs dicionários: tipos; a organização de verbetes" },
-      { id: 130, name: "▸\tVocabulário: neologismos, arcaísmos, estrangeirismos, latinismos" },
-      { id: 131, name: "▸\tOrtografia e acentuação gráfica" },
-      { id: 132, name: "▸\tA crase"}]},
+    topics: [ 
+{ id: 101, name: "▸\tInterpretação e Compreensão de texto Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 102, name: "▸\tOrganização estrutural Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 103, name: "▸\tMarcas de textualidade Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 104, name: "▸\tTipologia e Gêneros Textuais Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 105, name: "▸\tModos de organização (Descrição, narração, exposição, argumentação e injunção) Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 106, name: "▸\tEstrutura e Sintaxe: Operações de deslocamento, substituição Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 107, name: "▸\tPontuação Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 108, name: "▸\tOrdem direta/inversa Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 109, name: "▸\tMorfologia: Classes de palavras (Substantivos, adjetivos, verbos, conjunções) Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 110, name: "▸\tSemântica: Sentido próprio/figurado Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 111, name: "▸\tSemântica: Antônimos/Sinônimos Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 112, name: "▸\tSemântica: Polissemia Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 113, name: "▸\tSemântica: Dicionários Prioridade Máxima", weight:6, color:"#0F6E56" },
+{ id: 114, name: "▸\tOrtografia e acentuação gráfica Tendência Recente", weight:4, color:"#F59E0B" },
+{ id: 115, name: "▸\tA crase Tendência Recente", weight:4, color:"#F59E0B" },
+{ id: 116, name: "▸\tLinguagem e Comunicação; Registros e Funções da linguagem Baixa Incidência", weight:2, color:"#9CA3AF" }]},
   {id:2,name:"Direito Constitucional",priority:"muito_alta",weight:5,color:"#534AB7",topics:[
     {id:201,name:"Dos Direitos e Deveres Individuais e Coletivos (artigo 5º CF/1988)"},{id:202,name:"Disposições Gerais (Administração Pública - arts 37 e 38 da CF/1988)"},
     {id:203,name:"União: Bens e Competências Exclusivas, Privativas, Comuns e Concorrentes(art. 20 a 24 da CF/1988) "},{id:204,name:"Dos Servidores Públicos (arts. 39 a 41 da CF/1988)"},
@@ -205,17 +189,42 @@ function App() {
   const [ready, setReady]     = useState(false);
   const userIdRef = useRef(null);
 
-  // Função auxiliar para destacar "caiu/2026" em vermelho/negrito
-  const formatTopicName = (name) => {
-    if (!name || typeof name !== 'string') return name;
-    if (!name.includes('caiu/2026')) return name;
-    const parts = name.split(/(caiu\/2026)/g);
-    return parts.map((part, idx) => 
-      part === 'caiu/2026'
-        ?  React.createElement('span', { key: idx, style: { color: '#EF4444' } }, part)
-        : part
-    );
+ // Função auxiliar para destacar classificações por cor
+const formatTopicName = (name) => {
+  if (!name || typeof name !== 'string') return name;
+
+  const classificationMap = {
+    "🔴 Prioridade Máxima": "#EF4444",
+    "Prioridade Máxima": "#EF4444",
+    "🟠 Alta Incidência": "#F97316",
+    "Alta Incidência": "#F97316",
+    "🟡 Tendência Recente": "#F59E0B",
+    "Tendência Recente": "#F59E0B",
+    "⚪ Baixa Incidência": "#9CA3AF",
+    "Baixa Incidência": "#9CA3AF"
   };
+
+  const keys = Object.keys(classificationMap)
+    .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+
+  const regex = new RegExp(`(${keys})`, "g");
+
+  if (!regex.test(name)) return name;
+
+  const parts = name.split(regex);
+
+  return parts.map((part, idx) =>
+    classificationMap[part]
+      ? React.createElement(
+          "span",
+          { key: idx, style: { color: classificationMap[part] } },
+          part
+        )
+      : part
+  );
+};
+
 
   // Inicialização: obtém ID persistente do localStorage + carrega dados do Supabase
   useEffect(() => {
